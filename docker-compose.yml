@@ -2,29 +2,6 @@ version: "3.8"
 
 services:
   # =============================================
-  # PostgreSQL
-  # =============================================
-  db:
-    image: postgres:16-alpine
-    container_name: dian-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${DB_USER:-dian_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-dian_password}
-      POSTGRES_DB: ${DB_NAME:-dian_db}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-dian_user} -d ${DB_NAME:-dian_db}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - dian-network
-
-  # =============================================
   # FastAPI Backend
   # =============================================
   dian-api:
@@ -34,18 +11,13 @@ services:
     container_name: dian-rest-api
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "4001:8000"
     volumes:
       - ./dian-rest-documentos/descargas:/app/descargas
     env_file:
       - ./dian-rest-documentos/.env
     environment:
       DOWNLOAD_BASE_FOLDER: "/app/descargas"
-      DB_HOST: "db"
-      DB_PORT: "5432"
-    depends_on:
-      db:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -68,17 +40,14 @@ services:
     container_name: dian-frontend
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "4000:3000"
     environment:
-      NEXT_PUBLIC_API_URL: "http://localhost:8000"
+      NEXT_PUBLIC_API_URL: "http://64.23.180.56:4001"
     depends_on:
       dian-api:
         condition: service_healthy
     networks:
       - dian-network
-
-volumes:
-  postgres_data:
 
 networks:
   dian-network:
