@@ -47,11 +47,11 @@ services:
       dian-api:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000" ]
+      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
       interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 15s
+      retries: 5
+      start_period: 45s
     networks:
       - dian-network
 
