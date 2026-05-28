@@ -19,22 +19,19 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
-
-# Instalar curl para healthcheck
 RUN apk add --no-cache curl
 
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package*.json ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copiar la carpeta .next/standalone que contiene el servidor autocontienido
+COPY --from=builder --chown=root:root /app/.next/standalone ./
 
-USER nextjs
+# Copiar los archivos estáticos necesarios
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 
 EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-CMD ["node_modules/.bin/next", "start"]
+# Ejecutar el servidor autocontienido de Next.js
+CMD ["node", "server.js"]
