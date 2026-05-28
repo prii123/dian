@@ -1,0 +1,78 @@
+# Docker Compose para desarrollo con hot-reload
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL para desarrollo
+  db:
+    image: postgres:16-alpine
+    container_name: dian-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-dian_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dian_password}
+      POSTGRES_DB: ${DB_NAME:-dian_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-dian_user} -d ${DB_NAME:-dian_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dian-network
+
+  dian-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dian-rest-api-dev
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Montar código fuente para hot-reload
+      - ./app:/app/app
+      - ./descargas:/app/descargas
+      # Excluir pycache
+      - /app/app/__pycache__
+    environment:
+      APP_NAME: "DIAN Document Service (DEV)"
+      APP_VERSION: "1.0.0-dev"
+      SERVER_HOST: "0.0.0.0"
+      SERVER_PORT: "8000"
+      DEBUG: "true"
+      LOG_LEVEL: "DEBUG"
+      BROWSER_HEADLESS: "true"
+      BROWSER_TIMEOUT: "90000"
+      DOWNLOAD_TIMEOUT: "45000"
+      DIAN_WAIT_AFTER_LOGIN: "8000"
+      DIAN_WAIT_AFTER_CLICK: "2000"
+      DIAN_WAIT_BETWEEN_DOWNLOADS: "2000"
+      DIAN_PAGINATION_WAIT: "8000"
+      MAX_CONCURRENT_TASKS: "3"
+      DOWNLOAD_BASE_FOLDER: "/app/descargas"
+      ENABLE_DEBUG_SCREENSHOTS: "true"
+      DB_HOST: "db"
+      DB_PORT: "5432"
+      DB_USER: "${DB_USER:-dian_user}"
+      DB_PASSWORD: "${DB_PASSWORD:-dian_password}"
+      DB_NAME: "${DB_NAME:-dian_db}"
+    depends_on:
+      db:
+        condition: service_healthy
+    # Comando con reload habilitado
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    shm_size: '2gb'
+    cap_add:
+      - SYS_ADMIN
+    networks:
+      - dian-network
+
+volumes:
+  postgres_data_dev:
+
+networks:
+  dian-network:
+    driver: bridge

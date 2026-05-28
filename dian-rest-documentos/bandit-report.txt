@@ -1,0 +1,798 @@
+Run started:2026-04-15 04:31:56.470372+00:00
+
+Test results:
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\authlib\oauth1\rfc5849\client_auth.py:150:47
+149	        if body and headers.get("Content-Type") != CONTENT_TYPE_FORM_URLENCODED:
+150	            oauth_body_hash = base64.b64encode(hashlib.sha1(body).digest())
+151	            oauth_params.append(("oauth_body_hash", oauth_body_hash.decode("utf-8")))
+
+--------------------------------------------------
+>> Issue: [B613:trojansource] A Python source file contains bidirectional control characters ('\u202e').
+   Severity: High   Confidence: Medium
+   CWE: CWE-838 (https://cwe.mitre.org/data/definitions/838.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b613_trojansource.html
+   Location: .\.venv\Lib\site-packages\bandit\plugins\trojansource.py:22:36
+21	     3  	access_level = "user"
+22	     4	    if access_level != 'none‮⁦': # Check if admin ⁩⁦' and access_level != 'user
+23	     5	        print("You are an admin.\n")
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\cryptography\x509\extensions.py:72:11
+71	
+72	    return hashlib.sha1(data).digest()
+73	
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using xmlrpc to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\defusedxml\__init__.py:37:4
+36	    from . import expatreader
+37	    from . import xmlrpc
+38	
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using ExpatParser to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\defusedxml\xmlrpc.py:18:4
+17	    __origin__ = "xmlrpc.client"
+18	    from xmlrpc.client import ExpatParser
+19	    from xmlrpc import client as xmlrpc_client
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using client to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\defusedxml\xmlrpc.py:19:4
+18	    from xmlrpc.client import ExpatParser
+19	    from xmlrpc import client as xmlrpc_client
+20	    from xmlrpc import server as xmlrpc_server
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using server to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\defusedxml\xmlrpc.py:20:4
+19	    from xmlrpc import client as xmlrpc_client
+20	    from xmlrpc import server as xmlrpc_server
+21	    from xmlrpc.client import gzip_decode as _orig_gzip_decode
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using gzip_decode to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\defusedxml\xmlrpc.py:21:4
+20	    from xmlrpc import server as xmlrpc_server
+21	    from xmlrpc.client import gzip_decode as _orig_gzip_decode
+22	    from xmlrpc.client import GzipDecodedResponse as _OrigGzipDecodedResponse
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using GzipDecodedResponse to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\defusedxml\xmlrpc.py:22:4
+21	    from xmlrpc.client import gzip_decode as _orig_gzip_decode
+22	    from xmlrpc.client import GzipDecodedResponse as _OrigGzipDecodedResponse
+23	else:
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using ExpatParser to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\defusedxml\xmlrpc.py:25:4
+24	    __origin__ = "xmlrpclib"
+25	    from xmlrpclib import ExpatParser
+26	    import xmlrpclib as xmlrpc_client
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using xmlrpclib to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\defusedxml\xmlrpc.py:26:4
+25	    from xmlrpclib import ExpatParser
+26	    import xmlrpclib as xmlrpc_client
+27	
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using gzip_decode to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\defusedxml\xmlrpc.py:29:4
+28	    xmlrpc_server = None
+29	    from xmlrpclib import gzip_decode as _orig_gzip_decode
+30	    from xmlrpclib import GzipDecodedResponse as _OrigGzipDecodedResponse
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using GzipDecodedResponse to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\defusedxml\xmlrpc.py:30:4
+29	    from xmlrpclib import gzip_decode as _orig_gzip_decode
+30	    from xmlrpclib import GzipDecodedResponse as _OrigGzipDecodedResponse
+31	
+
+--------------------------------------------------
+>> Issue: [B605:start_process_with_a_shell] Starting a process with a shell, possible injection detected, security issue.
+   Severity: High   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b605_start_process_with_a_shell.html
+   Location: .\.venv\Lib\site-packages\greenlet\tests\test_version.py:38:13
+37	        invoke_setup = "%s %s --version" % (sys.executable, setup_py)
+38	        with os.popen(invoke_setup) as f:
+39	            sversion = f.read().strip()
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\httpx\_auth.py:309:15
+308	
+309	        return hashlib.sha1(s).hexdigest()[:16].encode()
+310	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\jinja2\bccache.py:156:15
+155	        """Returns the unique hash key for this template name."""
+156	        hash = sha1(name.encode("utf-8"))
+157	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\jinja2\bccache.py:165:15
+164	        """Returns a checksum for the source."""
+165	        return sha1(source.encode("utf-8")).hexdigest()
+166	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\jinja2\loaders.py:661:25
+660	    def get_template_key(name: str) -> str:
+661	        return "tmpl_" + sha1(name.encode("utf-8")).hexdigest()
+662	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\joblib\test\test_hashing.py:228:15
+227	    def md5_hash(x):
+228	        return hashlib.md5(memoryview(x)).hexdigest()
+229	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\nltk\downloader.py:2288:17
+2287	def _md5_hexdigest(fp):
+2288	    md5_digest = md5()
+2289	    while True:
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\cisco.py:214:17
+213	            secret += spoil_digest
+214	        digest = md5(secret).digest()
+215	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\digests.py:126:15
+125	        data = render_bytes("%s:%s:%s", user, realm, secret)
+126	        return hashlib.md5(data).hexdigest()
+127	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\django.py:124:29
+123	            secret = secret.encode("utf-8")
+124	        return str_to_uascii(sha1(self.salt.encode("ascii") + secret).hexdigest())
+125	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\django.py:162:29
+161	            secret = secret.encode("utf-8")
+162	        return str_to_uascii(md5(self.salt.encode("ascii") + secret).hexdigest())
+163	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\md5_crypt.py:94:9
+93	    #===================================================================
+94	    db = md5(pwd + salt + pwd).digest()
+95	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\md5_crypt.py:100:12
+99	    # start out with pwd + magic + salt
+100	    a_ctx = md5(pwd + magic + salt)
+101	    a_ctx_update = a_ctx.update
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\md5_crypt.py:177:17
+176	        for even, odd in data:
+177	            dc = md5(odd + md5(dc + even).digest()).digest()
+178	        blocks -= 1
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\md5_crypt.py:177:27
+176	        for even, odd in data:
+177	            dc = md5(odd + md5(dc + even).digest()).digest()
+178	        blocks -= 1
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\md5_crypt.py:182:13
+181	    for even, odd in data[:17]:
+182	        dc = md5(odd + md5(dc + even).digest()).digest()
+183	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\md5_crypt.py:182:23
+181	    for even, odd in data[:17]:
+182	        dc = md5(odd + md5(dc + even).digest()).digest()
+183	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\mssql.py:60:11
+59	    assert isinstance(salt, bytes)
+60	    return sha1(secret.encode("utf-16-le") + salt).digest()
+61	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\mysql.py:120:29
+119	            secret = secret.encode("utf-8")
+120	        return str_to_uascii(sha1(sha1(secret).digest()).hexdigest()).upper()
+121	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\mysql.py:120:34
+119	            secret = secret.encode("utf-8")
+120	        return str_to_uascii(sha1(sha1(secret).digest()).hexdigest()).upper()
+121	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\oracle.py:163:14
+162	            secret = secret.encode("utf-8")
+163	        chk = sha1(secret + unhexlify(self.salt.encode("ascii"))).hexdigest()
+164	        return str_to_uascii(chk).upper()
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\phpass.py:122:17
+121	        real_rounds = 1<<self.rounds
+122	        result = md5(self.salt.encode("ascii") + secret).digest()
+123	        r = 0
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\phpass.py:125:21
+124	        while r < real_rounds:
+125	            result = md5(result + secret).digest()
+126	            r += 1
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\postgres.py:47:29
+46	        user = to_bytes(self.user, "utf-8", param="user")
+47	        return str_to_uascii(md5(secret + user).hexdigest())
+48	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\sun_md5_crypt.py:99:13
+98	    # NOTE: algorithm 'salt' includes full config string w/ trailing "$"
+99	    result = md5(secret + salt).digest()
+100	    assert len(result) == 16
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\handlers\sun_md5_crypt.py:151:12
+150	        # construct hash for this round
+151	        h = md5(result)
+152	        if coin:
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\tests\test_context.py:1180:37
+1179	                    secret = secret.encode("utf-8")
+1180	                return str_to_uascii(md5(secret).hexdigest())
+1181	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\tests\test_context.py:1737:29
+1736	            secret = secret.encode("utf-8")
+1737	        return str_to_uascii(hashlib.sha1(b"prefix" + secret).hexdigest())
+1738	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD4 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\tests\test_crypto_builtin_md4.py:112:8
+111	    try:
+112	        hashlib.new("md4")
+113	        return True
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\tests\test_crypto_digest.py:87:12
+86	        try:
+87	            hashlib.new("sha")
+88	            has_sha = True
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD4 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\tests\test_crypto_digest.py:103:12
+102	        try:
+103	            hashlib.new("md4")
+104	            has_md4 = True
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\tests\test_utils_handlers.py:121:23
+120	                    raise ValueError("invalid hash")
+121	                return hashlib.sha1(b"xyz" + secret).hexdigest()
+122	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\tests\test_utils_handlers.py:802:29
+801	        data = b"boblious" + secret
+802	        return str_to_uascii(hashlib.sha1(data).hexdigest())
+803	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\tests\test_utils_handlers.py:832:29
+831	        data = self.salt.encode("ascii") + secret + self.salt.encode("ascii")
+832	        return str_to_uascii(hashlib.sha1(data).hexdigest())
+833	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\passlib\tests\test_utils_pbkdf2.py:318:19
+317	        def prf(key, msg):
+318	            return hashlib.md5(key+msg+b'fooey').digest()
+319	        self.assertRaises(NotImplementedError, pbkdf2, b'secret', b'salt', 1000, 20, prf)
+
+--------------------------------------------------
+>> Issue: [B602:subprocess_popen_with_shell_equals_true] subprocess call with shell=True identified, security issue.
+   Severity: High   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b602_subprocess_popen_with_shell_equals_true.html
+   Location: .\.venv\Lib\site-packages\pip\_internal\commands\configuration.py:247:12
+246	        try:
+247	            subprocess.check_call(f'{editor} "{fname}"', shell=True)
+248	        except FileNotFoundError as e:
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using xmlrpc.client to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\pip\_internal\commands\search.py:7:0
+6	import textwrap
+7	import xmlrpc.client
+8	from collections import OrderedDict
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using xmlrpc.client to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\pip\_internal\network\xmlrpc.py:5:0
+4	import urllib.parse
+5	import xmlrpc.client
+6	from typing import TYPE_CHECKING
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using _HostType to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\pip\_internal\network\xmlrpc.py:13:4
+12	if TYPE_CHECKING:
+13	    from xmlrpc.client import _HostType, _Marshallable
+14	
+
+--------------------------------------------------
+>> Issue: [B202:tarfile_unsafe_members] tarfile.extractall used without any validation. Please check and discard dangerous members.
+   Severity: High   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b202_tarfile_unsafe_members.html
+   Location: .\.venv\Lib\site-packages\pip\_internal\utils\unpacking.py:245:12
+244	
+245	            tar.extractall(location, filter=pip_filter)
+246	
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using xmlrpclib to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\pip\_vendor\distlib\compat.py:42:4
+41	    import httplib
+42	    import xmlrpclib
+43	    import Queue as queue
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using xmlrpc.client to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: .\.venv\Lib\site-packages\pip\_vendor\distlib\compat.py:81:4
+80	    import urllib.request as urllib2
+81	    import xmlrpc.client as xmlrpclib
+82	    import queue
+
+--------------------------------------------------
+>> Issue: [B202:tarfile_unsafe_members] tarfile.extractall used without any validation. Please check and discard dangerous members.
+   Severity: High   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b202_tarfile_unsafe_members.html
+   Location: .\.venv\Lib\site-packages\pip\_vendor\distlib\util.py:1285:8
+1284	
+1285	        archive.extractall(dest_dir)
+1286	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\pip\_vendor\requests\auth.py:148:23
+147	                    x = x.encode("utf-8")
+148	                return hashlib.md5(x).hexdigest()
+149	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\pip\_vendor\requests\auth.py:156:23
+155	                    x = x.encode("utf-8")
+156	                return hashlib.sha1(x).hexdigest()
+157	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\pip\_vendor\requests\auth.py:205:17
+204	
+205	        cnonce = hashlib.sha1(s).hexdigest()[:16]
+206	        if _algorithm == "MD5-SESS":
+
+--------------------------------------------------
+>> Issue: [B202:tarfile_unsafe_members] tarfile.extractall used without any validation. Please check and discard dangerous members.
+   Severity: High   Confidence: High
+   CWE: CWE-22 (https://cwe.mitre.org/data/definitions/22.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b202_tarfile_unsafe_members.html
+   Location: .\.venv\Lib\site-packages\pygments\lexers\_php_builtins.py:3304:16
+3303	            else:
+3304	                tar.extractall()
+3305	        yield from glob.glob(f"{PHP_MANUAL_DIR}{PHP_REFERENCE_GLOB}")
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\requests\auth.py:148:23
+147	                    x = x.encode("utf-8")
+148	                return hashlib.md5(x).hexdigest()
+149	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\requests\auth.py:156:23
+155	                    x = x.encode("utf-8")
+156	                return hashlib.sha1(x).hexdigest()
+157	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\requests\auth.py:205:17
+204	
+205	        cnonce = hashlib.sha1(s).hexdigest()[:16]
+206	        if _algorithm == "MD5-SESS":
+
+--------------------------------------------------
+>> Issue: [B701:jinja2_autoescape_false] By default, jinja2 sets autoescape to False. Consider using autoescape=True or use the select_autoescape function to mitigate XSS vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-94 (https://cwe.mitre.org/data/definitions/94.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b701_jinja2_autoescape_false.html
+   Location: .\.venv\Lib\site-packages\safety\alerts\utils.py:154:10
+153	    p = Path(__file__).parent / "templates"
+154	    env = jinja2.Environment(loader=jinja2.FileSystemLoader(Path(p)))  # type: ignore
+155	    template = env.get_template("pr.jinja2")
+
+--------------------------------------------------
+>> Issue: [B701:jinja2_autoescape_false] By default, jinja2 sets autoescape to False. Consider using autoescape=True or use the select_autoescape function to mitigate XSS vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-94 (https://cwe.mitre.org/data/definitions/94.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b701_jinja2_autoescape_false.html
+   Location: .\.venv\Lib\site-packages\safety\alerts\utils.py:204:10
+203	    p = Path(__file__).parent / "templates"
+204	    env = jinja2.Environment(loader=jinja2.FileSystemLoader(Path(p)))  # type: ignore
+205	    template = env.get_template("issue.jinja2")
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\safety\alerts\utils.py:262:11
+261	    """
+262	    return hashlib.sha1(
+263	        b"blob " + str(len(raw_contents)).encode("ascii") + b"\0" + raw_contents
+264	    ).hexdigest()
+265	
+
+--------------------------------------------------
+>> Issue: [B701:jinja2_autoescape_false] By default, jinja2 sets autoescape to False. Consider using autoescape=True or use the select_autoescape function to mitigate XSS vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-94 (https://cwe.mitre.org/data/definitions/94.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b701_jinja2_autoescape_false.html
+   Location: .\.venv\Lib\site-packages\safety\output_utils.py:1251:10
+1250	    file_loader = PackageLoader('safety', 'templates')
+1251	    env = Environment(loader=file_loader)
+1252	    template = env.get_template(template)
+
+--------------------------------------------------
+>> Issue: [B605:start_process_with_a_shell] Starting a process with a shell, possible injection detected, security issue.
+   Severity: High   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b605_start_process_with_a_shell.html
+   Location: .\.venv\Lib\site-packages\setuptools\_distutils\command\bdist_rpm.py:362:14
+361	
+362	        out = os.popen(q_cmd)
+363	        try:
+
+--------------------------------------------------
+>> Issue: [B605:start_process_with_a_shell] Starting a process with a shell, possible injection detected, security issue.
+   Severity: High   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b605_start_process_with_a_shell.html
+   Location: .\.venv\Lib\site-packages\setuptools\package_index.py:860:8
+859	        self.info("Doing subversion checkout from %s to %s", url, filename)
+860	        os.system("svn checkout%s -q %s %s" % (creds, url, filename))
+861	        return filename
+
+--------------------------------------------------
+>> Issue: [B605:start_process_with_a_shell] Starting a process with a shell, possible injection detected, security issue.
+   Severity: High   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b605_start_process_with_a_shell.html
+   Location: .\.venv\Lib\site-packages\setuptools\package_index.py:886:8
+885	        self.info("Doing git clone from %s to %s", url, filename)
+886	        os.system("git clone --quiet %s %s" % (url, filename))
+887	
+
+--------------------------------------------------
+>> Issue: [B605:start_process_with_a_shell] Starting a process with a shell, possible injection detected, security issue.
+   Severity: High   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b605_start_process_with_a_shell.html
+   Location: .\.venv\Lib\site-packages\setuptools\package_index.py:890:12
+889	            self.info("Checking out %s", rev)
+890	            os.system("git -C %s checkout --quiet %s" % (
+891	                filename,
+892	                rev,
+893	            ))
+894	
+
+--------------------------------------------------
+>> Issue: [B605:start_process_with_a_shell] Starting a process with a shell, possible injection detected, security issue.
+   Severity: High   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b605_start_process_with_a_shell.html
+   Location: .\.venv\Lib\site-packages\setuptools\package_index.py:902:8
+901	        self.info("Doing hg clone from %s to %s", url, filename)
+902	        os.system("hg clone --quiet %s %s" % (url, filename))
+903	
+
+--------------------------------------------------
+>> Issue: [B605:start_process_with_a_shell] Starting a process with a shell, possible injection detected, security issue.
+   Severity: High   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b605_start_process_with_a_shell.html
+   Location: .\.venv\Lib\site-packages\setuptools\package_index.py:906:12
+905	            self.info("Updating to %s", rev)
+906	            os.system("hg --cwd %s up -C -r %s -q" % (
+907	                filename,
+908	                rev,
+909	            ))
+910	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\sqlalchemy\util\compat.py:112:15
+111	    def md5_not_for_security() -> Any:
+112	        return hashlib.md5()
+113	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\starlette\_compat.py:28:15
+27	    def md5_hexdigest(data: bytes, *, usedforsecurity: bool = True) -> str:
+28	        return hashlib.md5(data).hexdigest()
+
+--------------------------------------------------
+>> Issue: [B701:jinja2_autoescape_false] By default, jinja2 sets autoescape to False. Consider using autoescape=True or use the select_autoescape function to mitigate XSS vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-94 (https://cwe.mitre.org/data/definitions/94.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b701_jinja2_autoescape_false.html
+   Location: .\.venv\Lib\site-packages\starlette\templating.py:121:15
+120	
+121	        return jinja2.Environment(**env_options)
+122	
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: .\.venv\Lib\site-packages\websockets\utils.py:34:11
+33	    """
+34	    sha1 = hashlib.sha1((key + GUID).encode()).digest()
+35	    return base64.b64encode(sha1).decode()
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 1054264
+	Total lines skipped (#nosec): 7
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 24
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 4568
+		Medium: 225
+		High: 77
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 42
+		Medium: 157
+		High: 4671
+Files skipped (0):

@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: dian-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-dian_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dian_password}
+      POSTGRES_DB: ${DB_NAME:-dian_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-dian_user} -d ${DB_NAME:-dian_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dian-network
+
+  # Aplicación FastAPI
+  dian-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dian-rest-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Montar carpeta de descargas para persistencia
+      - ./descargas:/app/descargas
+      # Opcional: montar logs si los hay
+      # - ./logs:/app/logs
+    env_file:
+      - .env
+    environment:
+      # Sobrescribir solo la ruta de descargas para Docker
+      DOWNLOAD_BASE_FOLDER: "/app/descargas"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Aumentar memoria compartida para Chromium
+    shm_size: '2gb'
+    # Capacidades de seguridad necesarias para navegadores
+    cap_add:
+      - SYS_ADMIN
+    networks:
+      - dian-network
+
+volumes:
+  postgres_data:
+
+networks:
+  dian-network:
+    driver: bridge

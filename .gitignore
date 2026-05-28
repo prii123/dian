@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+
+# Node
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Entorno
+.env
+.env.local
+.env*.local
+
+# Descargas
+descargas/
+
+# Screenshots debug
+*.png
+debug_*.png
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Docker
+Dockerfile*
+.dockerignore
+
+# Build
+dist/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# Temp
+*.tmp
+*.temp

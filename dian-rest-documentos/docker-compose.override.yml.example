@@ -1,0 +1,33 @@
+# docker-compose.override.yml
+# Este archivo es opcional y permite sobrescribir configuraciones
+# sin modificar el docker-compose.yml principal
+# 
+# Copia este archivo como docker-compose.override.yml y personaliza según necesites
+# Docker Compose automáticamente fusiona este archivo con docker-compose.yml
+
+version: '3.8'
+
+services:
+  dian-api:
+    # Ejemplo: cambiar el puerto
+    # ports:
+    #   - "8080:8000"
+    
+    # Ejemplo: agregar más variables de entorno
+    # environment:
+    #   MAX_CONCURRENT_TASKS: "5"
+    #   LOG_LEVEL: "DEBUG"
+    
+    # Ejemplo: montar volúmenes adicionales
+    # volumes:
+    #   - ./logs:/app/logs
+    
+    # Ejemplo: cambiar límites de recursos
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '2'
+    #       memory: 2G
+    #     reservations:
+    #       cpus: '0.5'
+    #       memory: 512M
