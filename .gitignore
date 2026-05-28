@@ -42,8 +42,12 @@ Thumbs.db
 *.log
 
 # Docker
-Dockerfile*
-.dockerignore
+# Dockerfile* es muy restrictivo, mejor ignorar casos específicos
+# .dockerignore
+
+# Permitir Dockerfiles del proyecto
+!dian-rest-documentos/Dockerfile
+!dian-frontend/Dockerfile
 
 # Build
 dist/
