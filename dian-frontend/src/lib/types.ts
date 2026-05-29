@@ -21,6 +21,13 @@ export interface TaskStatus {
   created_at: string;
   updated_at: string;
   download_folder: string | null;
+  fecha_inicio?: string;
+  fecha_fin?: string;
+}
+
+export interface TaskListResponse {
+  total: number;
+  tareas: TaskStatus[];
 }
 
 export interface FileInfo {

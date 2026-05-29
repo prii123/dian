@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.security import verify_api_key
 from app.models.db_models import APIKey
-from app.models.schemas import TaskCreateResponse, TaskRequest, TaskStatus
+from app.models.schemas import TaskCreateResponse, TaskRequest, TaskStatus, TaskListResponse
 from app.services.dian_service import DianService
 from app.services.task_service import TaskService
 
@@ -66,3 +66,19 @@ async def estado_tarea(
     Retorna información detallada del estado, progreso y archivos descargados.
     """
     return await TaskService.get_task(db, task_id)
+
+
+@router.get("/mis-tareas", response_model=TaskListResponse)
+async def mis_tareas(
+    api_key: APIKey = Depends(verify_api_key),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Obtiene todas las tareas asociadas al API Key del usuario.
+
+    **Requiere**: API Key válida en header X-API-Key
+
+    Retorna lista de todas las tareas creadas por este API Key,
+    ordenadas por fecha de creación (más recientes primero).
+    """
+    return await TaskService.get_tasks_by_api_key(db, str(api_key.id))

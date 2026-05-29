@@ -2,11 +2,13 @@
 Rutas de health check y estado del servicio
 """
 from datetime import datetime
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.schemas import HealthResponse
 from app.services.task_service import TaskService
 from app.core.config import settings
+from app.core.database import get_db
 
 router = APIRouter(tags=["Health"])
 
@@ -31,11 +33,11 @@ async def root():
 
 
 @router.get("/health", response_model=HealthResponse)
-async def health_check():
+async def health_check(db: AsyncSession = Depends(get_db)):
     """Health check endpoint"""
     return HealthResponse(
         status="healthy",
         timestamp=datetime.now().isoformat(),
-        tareas_activas=TaskService.count_running_tasks(),
+        tareas_activas=await TaskService.count_running_tasks(db),
         version=settings.APP_VERSION
     )

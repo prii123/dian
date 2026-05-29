@@ -47,6 +47,8 @@ class TaskStatus(BaseModel):
     created_at: str
     updated_at: str
     download_folder: Optional[str] = None
+    fecha_inicio: Optional[str] = None
+    fecha_fin: Optional[str] = None
 
 
 class TaskCreateResponse(BaseModel):
@@ -72,6 +74,13 @@ class FileListResponse(BaseModel):
     filtro_tipo: Optional[str] = None
     archivos: List[FileInfo]
     total: int
+
+
+class TaskListResponse(BaseModel):
+    """Listado de tareas de un usuario"""
+
+    total: int
+    tareas: List[TaskStatus]
 
 
 class HealthResponse(BaseModel):

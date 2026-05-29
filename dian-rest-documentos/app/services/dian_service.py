@@ -3,6 +3,7 @@ Servicio para interactuar con el portal de la DIAN
 """
 
 import os
+import asyncio
 from datetime import datetime
 
 from playwright.async_api import async_playwright
@@ -15,6 +16,83 @@ from app.services.task_service import TaskService
 
 class DianService:
     """Servicio para automatizar la descarga de documentos de DIAN"""
+
+    # Configuración de reintentos
+    MAX_REINTENTOS = 5
+    DELAY_INICIAL = 2  # segundos
+    FACTOR_EXPONENCIAL = 1.5  # Aumentar delay cada vez
+
+    @staticmethod
+    async def _retry_action(
+        action_func,
+        db,
+        task_id: str,
+        action_name: str = "acción",
+        max_retries: int = None,
+    ):
+        """
+        Ejecuta una acción con reintentos automáticos
+
+        Args:
+            action_func: Función async que ejecutar
+            db: Sesión de BD para actualizar estado
+            task_id: ID de la tarea para logging
+            action_name: Nombre descriptivo de la acción
+            max_retries: Número máximo de reintentos (usa MAX_REINTENTOS si no se especifica)
+
+        Returns:
+            Resultado de action_func si tiene éxito
+        
+        Raises:
+            Exception: Si falla después de todos los reintentos
+        """
+        if max_retries is None:
+            max_retries = DianService.MAX_REINTENTOS
+
+        delay = DianService.DELAY_INICIAL
+        ultimo_error = None
+
+        for intento in range(max_retries + 1):
+            try:
+                logger.info(
+                    f"Tarea {task_id}: {action_name} (intento {intento + 1}/{max_retries + 1})"
+                )
+
+                resultado = await action_func()
+                
+                if intento > 0:
+                    logger.info(f"Tarea {task_id}: {action_name} exitoso después de {intento} reintentos")
+                
+                return resultado
+
+            except Exception as e:
+                ultimo_error = e
+                
+                if intento < max_retries:
+                    # Calcular delay con backoff exponencial
+                    espera = delay * (DianService.FACTOR_EXPONENCIAL ** intento)
+                    
+                    logger.warning(
+                        f"Tarea {task_id}: Error en {action_name}: {str(e)[:100]}. "
+                        f"Reintentando en {espera:.1f}s... (intento {intento + 1}/{max_retries})"
+                    )
+                    
+                    # Actualizar estado con mensaje de reintento
+                    await TaskService.update_task(
+                        db,
+                        task_id,
+                        {
+                            "mensaje": f"{action_name} - reintentando en {espera:.0f}s (intento {intento + 1}/{max_retries})...",
+                        },
+                    )
+                    
+                    await asyncio.sleep(espera)
+                else:
+                    # Último intento falló
+                    logger.error(f"Tarea {task_id}: {action_name} falló después de {max_retries} reintentos")
+
+        # Si llegamos aquí, se agotaron los reintentos
+        raise ultimo_error
 
     @staticmethod
     async def descargar_documentos(
@@ -91,10 +169,29 @@ class DianService:
                         },
                     )
 
-                    await page.locator("a#DocumentIndex").click(timeout=15000)
+                    # Con reintentos para clicks de navegación
+                    async def click_document_index():
+                        await page.locator("a#DocumentIndex").click(timeout=15000)
+
+                    async def click_document_received():
+                        await page.locator("li#DocumentReceived a").click(timeout=15000)
+
+                    await DianService._retry_action(
+                        click_document_index,
+                        db,
+                        task_id,
+                        action_name="Clic en índice de documentos",
+                        max_retries=2,
+                    )
                     await page.wait_for_timeout(settings.DIAN_WAIT_AFTER_CLICK)
 
-                    await page.locator("li#DocumentReceived a").click(timeout=15000)
+                    await DianService._retry_action(
+                        click_document_received,
+                        db,
+                        task_id,
+                        action_name="Clic en documentos recibidos",
+                        max_retries=2,
+                    )
                     await page.wait_for_timeout(settings.DIAN_WAIT_AFTER_CLICK + 1000)
 
                     await page.wait_for_selector(
@@ -127,7 +224,18 @@ class DianService:
                         {"mensaje": "Buscando documentos...", "progress": 20},
                     )
 
-                    await page.locator("button.btn-radian-success").click(timeout=15000)
+                    # Usar reintentos para el click del botón de búsqueda (paso crítico)
+                    async def click_buscar():
+                        await page.locator("button.btn-radian-success").click(timeout=15000)
+
+                    await DianService._retry_action(
+                        click_buscar,
+                        db,
+                        task_id,
+                        action_name="Clic en botón de búsqueda",
+                        max_retries=3,
+                    )
+
                     await page.wait_for_selector(
                         "button.download-document", timeout=30000
                     )

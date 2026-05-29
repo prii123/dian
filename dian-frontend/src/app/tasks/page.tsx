@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useKeys } from "../layout";
-import { iniciarDescarga } from "@/lib/api";
+import { iniciarDescarga, getMyTasks } from "@/lib/api";
+import type { TaskStatus } from "@/lib/types";
 
 export default function TasksPage() {
   const router = useRouter();
@@ -16,6 +18,28 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [myTasks, setMyTasks] = useState<TaskStatus[]>([]);
+  const [loadingTasks, setLoadingTasks] = useState(false);
+
+  // Cargar mis tareas
+  const fetchMyTasks = async () => {
+    if (!apiKey) return;
+    setLoadingTasks(true);
+    try {
+      const res = await getMyTasks();
+      setMyTasks(res.tareas);
+    } catch (err) {
+      console.error("Error loading tasks:", err);
+    } finally {
+      setLoadingTasks(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMyTasks();
+    const interval = setInterval(fetchMyTasks, 10000); // Recargar cada 10 segundos
+    return () => clearInterval(interval);
+  }, [apiKey]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -29,11 +53,28 @@ export default function TasksPage() {
     try {
       const res = await iniciarDescarga(form);
       setSuccess(`Tarea ${res.task_id} iniciada`);
+      setForm({ token_url: "", fecha_inicio: "", fecha_fin: "" });
+      await fetchMyTasks();
       router.push(`/tasks/${res.task_id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al iniciar la tarea");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300";
+      case "running":
+        return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300";
+      case "failed":
+        return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300";
+      case "pending":
+        return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300";
+      default:
+        return "bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-300";
     }
   };
 
@@ -153,6 +194,82 @@ export default function TasksPage() {
           )}
         </button>
       </form>
+
+      {/* Mis tareas */}
+      <div className="mt-12">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+              Mis Tareas ({myTasks.length})
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              {apiKey ? "Tareas asociadas a tu API Key" : "Configura tu API Key para ver tus tareas"}
+            </p>
+          </div>
+          <button
+            onClick={fetchMyTasks}
+            disabled={loadingTasks}
+            className="px-3 py-1.5 text-sm rounded-md border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+          >
+            {loadingTasks ? "Cargando..." : "Actualizar"}
+          </button>
+        </div>
+
+        {myTasks.length === 0 ? (
+          <div className="p-6 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-center">
+            <p className="text-slate-500 dark:text-slate-400">
+              {apiKey ? "No hay tareas aún. Crea una para empezar." : "Inicia sesión para ver tus tareas."}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {myTasks.map((task) => (
+              <Link
+                key={task.task_id}
+                href={`/tasks/${task.task_id}`}
+                className="block p-4 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all group"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(task.status)}`}>
+                        {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
+                      </span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">
+                        {new Date(task.created_at).toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-900 dark:text-white font-medium truncate group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                      {task.fecha_inicio} - {task.fecha_fin}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
+                      ID: {task.task_id}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                        {task.descargados}/{task.total_documentos}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {task.progress.toFixed(0)}%
+                      </p>
+                    </div>
+                    {task.status === "running" && (
+                      <div className="w-16 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500 transition-all"
+                          style={{ width: `${task.progress}%` }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

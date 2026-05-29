@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.logger import logger
 from app.models.db_models import Task
-from app.models.schemas import TaskRequest, TaskStatus
+from app.models.schemas import TaskRequest, TaskStatus, TaskListResponse
 
 
 class TaskService:
@@ -110,6 +110,8 @@ class TaskService:
             created_at=task.created_at.isoformat(),
             updated_at=task.updated_at.isoformat(),
             download_folder=task.download_folder,
+            fecha_inicio=task.fecha_inicio,
+            fecha_fin=task.fecha_fin,
         )
 
     @staticmethod
@@ -176,3 +178,46 @@ class TaskService:
         )
         count = result.scalar()
         return count or 0
+
+    @staticmethod
+    async def get_tasks_by_api_key(db: AsyncSession, api_key_id: str) -> TaskListResponse:
+        """
+        Obtener todas las tareas asociadas a un API Key
+
+        Args:
+            db: Sesión de base de datos
+            api_key_id: ID del API Key
+
+        Returns:
+            Lista de tareas del API Key ordenadas por fecha de creación (más recientes primero)
+        """
+        # Consultar tareas ordenadas por fecha de creación descendente
+        result = await db.execute(
+            select(Task)
+            .where(Task.api_key_id == api_key_id)
+            .order_by(Task.created_at.desc())
+        )
+        tasks = result.scalars().all()
+
+        # Convertir a TaskStatus
+        task_statuses = [
+            TaskStatus(
+                task_id=task.id,
+                status=task.status,
+                progress=task.progress,
+                total_documentos=task.total_documentos,
+                descargados=task.descargados,
+                pagina_actual=task.pagina_actual,
+                mensaje=task.mensaje,
+                created_at=task.created_at.isoformat(),
+                updated_at=task.updated_at.isoformat(),
+                download_folder=task.download_folder,
+                fecha_inicio=task.fecha_inicio,
+                fecha_fin=task.fecha_fin,
+            )
+            for task in tasks
+        ]
+
+        logger.info(f"Obtenidas {len(task_statuses)} tareas para API Key {api_key_id}")
+
+        return TaskListResponse(total=len(task_statuses), tareas=task_statuses)

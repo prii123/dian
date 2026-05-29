@@ -37,6 +37,8 @@ services:
     build:
       context: ./dian-frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: "http://64.23.180.56:4001"
     container_name: dian-frontend
     restart: unless-stopped
     ports:

@@ -1,27 +1,6 @@
 version: '3.8'
 
 services:
-  # Base de datos PostgreSQL
-  db:
-    image: postgres:16-alpine
-    container_name: dian-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${DB_USER:-dian_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-dian_password}
-      POSTGRES_DB: ${DB_NAME:-dian_db}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-dian_user} -d ${DB_NAME:-dian_db}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - dian-network
-
   # Aplicación FastAPI
   dian-api:
     build:
@@ -41,9 +20,6 @@ services:
     environment:
       # Sobrescribir solo la ruta de descargas para Docker
       DOWNLOAD_BASE_FOLDER: "/app/descargas"
-    depends_on:
-      db:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -57,9 +33,6 @@ services:
       - SYS_ADMIN
     networks:
       - dian-network
-
-volumes:
-  postgres_data:
 
 networks:
   dian-network:

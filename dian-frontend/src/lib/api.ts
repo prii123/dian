@@ -101,6 +101,10 @@ export function getTaskStatus(taskId: string) {
   return apiFetch<import("./types").TaskStatus>(`/api/estado-tarea/${taskId}`);
 }
 
+export function getMyTasks() {
+  return apiFetch<import("./types").TaskListResponse>(`/api/mis-tareas`);
+}
+
 // Files
 export function listarArchivos(taskId: string) {
   return apiFetch<{ task_id: string; archivos: import("./types").FileInfo[]; total: number }>(
@@ -117,6 +121,47 @@ export function descargarTodos(taskId: string, tipo?: string) {
   return apiFetch<import("./types").FileListResponse>(
     `/api/descargar-todos/${taskId}${params}`
   );
+}
+
+export async function descargarTodosPorTipo(taskId: string, tipo: string) {
+  const key = getApiKey();
+  const res = await fetch(
+    `${API_BASE}/api/descargar-todos-comprimido/${taskId}?tipo=${tipo}`,
+    {
+      headers: key ? { "X-API-Key": key } : {},
+    }
+  );
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(body.detail || `Error ${res.status}`);
+  }
+
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  // Obtener nombre del archivo del header Content-Disposition
+  const contentDisposition = res.headers.get("Content-Disposition");
+  let filename = `documentos_${tipo}.zip`;
+
+  if (contentDisposition) {
+    const filenameMatch = contentDisposition.match(/filename=(.+)/);
+    if (filenameMatch) {
+      filename = filenameMatch[1].replace(/"/g, "");
+    }
+  }
+
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+export async function descargarTodosZip(taskId: string) {
+  await descargarTodosPorTipo(taskId, "zip");
 }
 
 // Admin API Keys

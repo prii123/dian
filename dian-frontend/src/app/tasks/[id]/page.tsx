@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { getTaskStatus, listarArchivos, descargarArchivo, descargarTodos } from "@/lib/api";
+import { getTaskStatus, listarArchivos, descargarArchivo, descargarTodos, descargarTodosZip, descargarTodosPorTipo } from "@/lib/api";
 import type { TaskStatus, FileInfo } from "@/lib/types";
 
 export default function TaskDetailPage() {
@@ -15,6 +15,8 @@ export default function TaskDetailPage() {
   const [filterType, setFilterType] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [downloadingAll, setDownloadingAll] = useState(false);
+  const [downloadingType, setDownloadingType] = useState<string | null>(null);
 
   const fetchTask = useCallback(async () => {
     try {
@@ -57,6 +59,28 @@ export default function TaskDetailPage() {
     const interval = setInterval(fetchTask, 3000);
     return () => clearInterval(interval);
   }, [task, fetchTask]);
+
+  const handleDownloadAllZip = async () => {
+    setDownloadingAll(true);
+    try {
+      await descargarTodosZip(taskId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al descargar ZIP");
+    } finally {
+      setDownloadingAll(false);
+    }
+  };
+
+  const handleDownloadByType = async (tipo: string) => {
+    setDownloadingType(tipo);
+    try {
+      await descargarTodosPorTipo(taskId, tipo);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : `Error al descargar ${tipo.toUpperCase()}`);
+    } finally {
+      setDownloadingType(null);
+    }
+  };
 
   const statusColors: Record<string, string> = {
     pending: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300",
@@ -178,6 +202,36 @@ export default function TaskDetailPage() {
                   className="px-3 py-1.5 text-sm rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                 >
                   Refrescar
+                </button>
+              </div>
+            </div>
+
+            {/* Opciones de descarga por tipo */}
+            <div className="mb-4 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
+              <div className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                📥 Descargar por tipo:
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => handleDownloadByType("zip")}
+                  disabled={downloadingType === "zip" || !files.some(f => f.tipo?.toUpperCase() === "ZIP")}
+                  className="px-3 py-2 text-sm rounded-lg bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white transition-colors font-medium"
+                >
+                  {downloadingType === "zip" ? "Descargando..." : "ZIP"}
+                </button>
+                <button
+                  onClick={() => handleDownloadByType("pdf")}
+                  disabled={downloadingType === "pdf" || !files.some(f => f.tipo?.toUpperCase() === "PDF")}
+                  className="px-3 py-2 text-sm rounded-lg bg-red-500 hover:bg-red-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white transition-colors font-medium"
+                >
+                  {downloadingType === "pdf" ? "Descargando..." : "PDF"}
+                </button>
+                <button
+                  onClick={() => handleDownloadByType("xml")}
+                  disabled={downloadingType === "xml" || !files.some(f => f.tipo?.toUpperCase() === "XML")}
+                  className="px-3 py-2 text-sm rounded-lg bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white transition-colors font-medium"
+                >
+                  {downloadingType === "xml" ? "Descargando..." : "XML"}
                 </button>
               </div>
             </div>

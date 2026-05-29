@@ -51,11 +51,11 @@ def create_app() -> FastAPI:
         },
         {
             "name": "Tareas",
-            "description": "Gestión de tareas de descarga: iniciar, consultar estado y progreso. **Requiere API Key**.",
+            "description": "Gestión de tareas de descarga: iniciar, consultar estado, listar tareas por usuario. **Requiere API Key**.",
         },
         {
-            "name": "Archivos",
-            "description": "Gestión de archivos descargados: listar, descargar individual o en lote. **Requiere API Key**.",
+            "name": "Descargas y Archivos",
+            "description": "Gestión de archivos descargados: listar, descargar individual, descargar múltiples en ZIP. **Requiere API Key**.",
         },
         {
             "name": "Admin - API Keys",
