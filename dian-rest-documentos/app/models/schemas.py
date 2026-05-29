@@ -187,3 +187,73 @@ class ApiKeyValidation(BaseModel):
     name: str
     is_valid: bool
     message: str
+
+
+# =====================================================
+# Schemas para Lotes (procesamiento por CUFE)
+# =====================================================
+
+
+class LoteUploadResponse(BaseModel):
+    """Respuesta al subir un archivo Excel de CUFE"""
+
+    lote_id: str
+    filename: str
+    total_cufes: int
+    mensaje: str
+    status: str
+
+
+class LoteDetalleInfo(BaseModel):
+    """Información de un detalle de CUFE en el lote"""
+
+    id: str
+    cufe: str
+    status: str
+    download_path: Optional[str] = None
+    mensaje: Optional[str] = None
+    intentos: int
+    ultimo_intento: Optional[str] = None
+
+
+class LoteDetalleListResponse(BaseModel):
+    """Listado de detalles CUFE de un lote"""
+
+    lote_id: str
+    detalles: List[LoteDetalleInfo]
+    total: int
+    pendientes: int
+    descargados: int
+    fallidos: int
+    no_encontrados: int
+
+
+class LoteStatus(BaseModel):
+    """Estado de un lote"""
+
+    lote_id: str
+    filename: str
+    status: str
+    total_cufes: int
+    descargados: int
+    fallidos: int
+    no_encontrados: int
+    progress: float
+    mensaje: Optional[str] = None
+    download_folder: Optional[str] = None
+    created_at: str
+    updated_at: str
+    completed_at: Optional[str] = None
+
+
+class LoteReanudarTokenRequest(BaseModel):
+    """Solicitud para reanudar un lote con un nuevo token_url"""
+
+    token_url: str
+
+
+class LoteListResponse(BaseModel):
+    """Listado de lotes"""
+
+    total: int
+    lotes: List[LoteStatus]

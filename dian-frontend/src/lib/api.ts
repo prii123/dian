@@ -27,6 +27,21 @@ export function clearKeys() {
   localStorage.removeItem("dian_master_api_key");
 }
 
+function extractError(body: unknown, status: number): string {
+  if (!body || typeof body !== "object") return `Error ${status}`;
+  const obj = body as Record<string, unknown>;
+  const detail = obj.detail;
+  if (Array.isArray(detail)) {
+    return (detail as Array<{ msg?: string }>)
+      .map((e) => e.msg)
+      .filter(Boolean)
+      .join("; ") || `Error ${status}`;
+  }
+  if (typeof detail === "string") return detail;
+  if (typeof obj.message === "string") return obj.message;
+  return `Error ${status}`;
+}
+
 async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
@@ -47,8 +62,8 @@ async function apiFetch<T>(
   });
 
   if (!res.ok) {
-    const body = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(body.detail || `Error ${res.status}`);
+    const body = await res.json().catch(() => null);
+    throw new Error(extractError(body, res.status));
   }
 
   if (res.status === 204) return undefined as T;
@@ -133,8 +148,8 @@ export async function descargarTodosPorTipo(taskId: string, tipo: string) {
   );
 
   if (!res.ok) {
-    const body = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(body.detail || `Error ${res.status}`);
+    const body = await res.json().catch(() => null);
+    throw new Error(extractError(body, res.status));
   }
 
   const blob = await res.blob();
@@ -203,4 +218,91 @@ export function revokeApiKey(id: string) {
     { method: "DELETE" },
     true
   );
+}
+
+// Lotes CUFE
+export async function uploadLote(
+  file: File,
+  token_url: string,
+  fecha_inicio?: string,
+  fecha_fin?: string,
+  columna?: string
+) {
+  const key = getApiKey();
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("token_url", token_url);
+  if (fecha_inicio) formData.append("fecha_inicio", fecha_inicio);
+  if (fecha_fin) formData.append("fecha_fin", fecha_fin);
+  if (columna) formData.append("columna", columna);
+
+  const res = await fetch(`${API_BASE}/api/lotes/upload`, {
+    method: "POST",
+    headers: key ? { "X-API-Key": key } : {},
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(extractError(body, res.status));
+  }
+
+  return res.json() as Promise<import("./types").LoteUploadResponse>;
+}
+
+export function getLotes() {
+  return apiFetch<import("./types").LoteListResponse>("/api/lotes");
+}
+
+export function getLoteStatus(loteId: string) {
+  return apiFetch<import("./types").LoteStatus>(`/api/lotes/${loteId}`);
+}
+
+export function getLoteDetalles(loteId: string) {
+  return apiFetch<import("./types").LoteDetalleListResponse>(
+    `/api/lotes/${loteId}/detalles`
+  );
+}
+
+export async function reanudarLote(loteId: string) {
+  return apiFetch<import("./types").LoteStatus>(`/api/lotes/${loteId}/reanudar`, {
+    method: "POST",
+  });
+}
+
+export async function reanudarLoteConToken(loteId: string, token_url: string) {
+  return apiFetch<import("./types").LoteStatus>(`/api/lotes/${loteId}/reanudar-con-token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token_url }),
+  });
+}
+
+export async function descargarLoteComprimido(loteId: string) {
+  const key = getApiKey();
+  const res = await fetch(`${API_BASE}/api/lotes/${loteId}/descargar-comprimido`, {
+    headers: key ? { "X-API-Key": key } : {},
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(extractError(body, res.status));
+  }
+
+  const blob = await res.blob();
+  const contentDisposition = res.headers.get("Content-Disposition");
+  let filename = `lote_${loteId.slice(0, 8)}.zip`;
+  if (contentDisposition) {
+    const m = contentDisposition.match(/filename=(.+)/);
+    if (m) filename = m[1].replace(/"/g, "");
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }

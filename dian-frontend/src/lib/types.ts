@@ -95,3 +95,56 @@ export interface ServiceInfo {
   descripcion: string;
   endpoints: Record<string, string>;
 }
+
+// =====================================================
+// Lotes (procesamiento por CUFE)
+// =====================================================
+
+export interface LoteUploadResponse {
+  lote_id: string;
+  filename: string;
+  total_cufes: number;
+  mensaje: string;
+  status: string;
+}
+
+export interface LoteStatus {
+  lote_id: string;
+  filename: string;
+  status: string;
+  total_cufes: number;
+  descargados: number;
+  fallidos: number;
+  no_encontrados: number;
+  progress: number;
+  mensaje: string | null;
+  download_folder: string | null;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+}
+
+export interface LoteListResponse {
+  total: number;
+  lotes: LoteStatus[];
+}
+
+export interface LoteDetalleInfo {
+  id: string;
+  cufe: string;
+  status: string;
+  download_path: string | null;
+  mensaje: string | null;
+  intentos: number;
+  ultimo_intento: string | null;
+}
+
+export interface LoteDetalleListResponse {
+  lote_id: string;
+  detalles: LoteDetalleInfo[];
+  total: number;
+  pendientes: number;
+  descargados: number;
+  fallidos: number;
+  no_encontrados: number;
+}

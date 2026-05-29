@@ -107,7 +107,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Link
           href="/tasks"
           className="p-5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all group"
@@ -116,7 +116,19 @@ export default function Dashboard() {
             Iniciar Descarga
           </h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Crea una nueva tarea de descarga de documentos desde la DIAN
+            Crea una nueva tarea de descarga de documentos desde la DIAN por rango de fechas
+          </p>
+        </Link>
+
+        <Link
+          href="/lotes"
+          className="p-5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 transition-all group"
+        >
+          <h3 className="font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+            Lotes por CUFE
+          </h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Sube un Excel con CUFE y descarga documentos especificos de la DIAN
           </p>
         </Link>
 

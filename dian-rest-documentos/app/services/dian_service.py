@@ -7,11 +7,14 @@ import asyncio
 from datetime import datetime
 
 from playwright.async_api import async_playwright
+from sqlalchemy import select
 
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
 from app.core.logger import logger
+from app.models.db_models import Lote
 from app.services.task_service import TaskService
+from app.services.lote_service import LoteService
 
 
 class DianService:
@@ -400,3 +403,268 @@ class DianService:
             logger.info(f"Tarea {task_id}: Navegando a página {pagina_actual}")
 
         return total_descargados
+
+    @staticmethod
+    async def descargar_por_cufes(lote_id: str):
+        """
+        Procesa un lote de CUFE: navega al portal DIAN, busca cada CUFE
+        y descarga el ZIP correspondiente.
+
+        Soporta reanudacion: solo procesa CUFE con status 'pending' o 'failed'.
+        """
+        logger.info(f"Lote {lote_id}: Iniciando proceso de descarga por CUFE")
+
+        async with AsyncSessionLocal() as db:
+            try:
+                token_url = await LoteService.get_lote_token_url(db, lote_id)
+                if not token_url:
+                    raise Exception("No se encontro token_url en el lote")
+
+                await LoteService.update_lote(
+                    db, lote_id, {"status": "running", "mensaje": "Iniciando navegador..."}
+                )
+
+                download_folder = os.path.join(
+                    settings.DOWNLOAD_BASE_FOLDER,
+                    f"lote_{lote_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+                )
+                os.makedirs(download_folder, exist_ok=True)
+                await LoteService.update_lote(db, lote_id, {"download_folder": download_folder})
+
+                logger.info(f"Lote {lote_id}: Carpeta de descarga: {download_folder}")
+
+                async with async_playwright() as p:
+                    browser = await p.chromium.launch(
+                        headless=settings.BROWSER_HEADLESS,
+                        args=[
+                            "--no-sandbox",
+                            "--disable-setuid-sandbox",
+                            "--disable-dev-shm-usage",
+                        ],
+                    )
+                    context = await browser.new_context(accept_downloads=True)
+                    page = await context.new_page()
+
+                    # Paso 1: Login
+                    await LoteService.update_lote(
+                        db, lote_id, {"mensaje": "Conectando a portal DIAN...", "progress": 2}
+                    )
+                    await page.goto(
+                        token_url, wait_until="networkidle", timeout=settings.BROWSER_TIMEOUT
+                    )
+                    await page.wait_for_timeout(settings.DIAN_WAIT_AFTER_LOGIN)
+                    logger.info(f"Lote {lote_id}: Conectado a portal DIAN")
+
+                    # Paso 2: Navegar a Documentos Recibidos
+                    await LoteService.update_lote(
+                        db, lote_id, {"mensaje": "Navegando a Documentos Recibidos...", "progress": 5}
+                    )
+
+                    async def click_document_index():
+                        await page.locator("a#DocumentIndex").click(timeout=15000)
+
+                    async def click_document_received():
+                        await page.locator("li#DocumentReceived a").click(timeout=15000)
+
+                    await DianService._retry_action(
+                        click_document_index, db, lote_id,
+                        action_name="Clic en indice de documentos", max_retries=2,
+                    )
+                    await page.wait_for_timeout(settings.DIAN_WAIT_AFTER_CLICK)
+
+                    await DianService._retry_action(
+                        click_document_received, db, lote_id,
+                        action_name="Clic en documentos recibidos", max_retries=2,
+                    )
+                    await page.wait_for_timeout(settings.DIAN_WAIT_AFTER_CLICK + 1000)
+
+                    await page.wait_for_selector("#dashboard-report-range", timeout=20000)
+
+                    # Paso 3: Configurar fechas (rango amplio si no hay fechas especificas)
+                    lote_result = await db.execute(select(Lote).where(Lote.id == lote_id))
+                    lote_obj = lote_result.scalar_one_or_none()
+                    fecha_inicio = lote_obj.fecha_inicio if lote_obj and lote_obj.fecha_inicio else "01-01-2020"
+                    fecha_fin = lote_obj.fecha_fin if lote_obj and lote_obj.fecha_fin else datetime.now().strftime("%d-%m-%Y")
+
+                    rango_fecha = f"{fecha_inicio} - {fecha_fin}"
+                    campo_fecha = page.locator("#dashboard-report-range")
+
+                    await LoteService.update_lote(
+                        db, lote_id,
+                        {"mensaje": f"Configurando fechas {fecha_inicio} - {fecha_fin}...", "progress": 8}
+                    )
+                    await campo_fecha.click(timeout=10000)
+                    await page.wait_for_timeout(500)
+                    await campo_fecha.fill(rango_fecha)
+                    await page.wait_for_timeout(500)
+                    await campo_fecha.dispatch_event("change")
+                    await page.wait_for_timeout(500)
+
+                    # Paso 4: Buscar
+                    await LoteService.update_lote(
+                        db, lote_id, {"mensaje": "Buscando documentos...", "progress": 10}
+                    )
+
+                    async def click_buscar():
+                        await page.locator("button.btn-radian-success").click(timeout=15000)
+
+                    await DianService._retry_action(
+                        click_buscar, db, lote_id,
+                        action_name="Clic en boton de busqueda", max_retries=3,
+                    )
+
+                    await page.wait_for_selector("button.download-document", timeout=30000)
+
+                    # Paso 5: Procesar cada CUFE pendiente/fallido
+                    cufes_pendientes = await LoteService.get_pending_cufes(db, lote_id)
+                    total_pendientes = len(cufes_pendientes)
+
+                    if total_pendientes == 0:
+                        await LoteService.update_lote(
+                            db, lote_id,
+                            {"status": "completed", "mensaje": "No hay CUFE pendientes para procesar", "progress": 100}
+                        )
+                        await browser.close()
+                        return
+
+                    logger.info(f"Lote {lote_id}: Procesando {total_pendientes} CUFE pendientes/fallidos")
+
+                    # Localizar el campo de busqueda del DataTable
+                    search_input = page.locator(".dataTables_filter input[type='search'], input[type='search']").first
+
+                    for idx, detalle in enumerate(cufes_pendientes):
+                        cufe = detalle.cufe
+                        try:
+                            await LoteService.update_lote(
+                                db, lote_id,
+                                {
+                                    "mensaje": f"Buscando CUFE {idx + 1}/{total_pendientes}: {cufe[:30]}...",
+                                },
+                            )
+
+                            await LoteService.update_detalle(
+                                db, detalle.id,
+                                {
+                                    "status": "downloading",
+                                    "intentos": detalle.intentos + 1,
+                                    "ultimo_intento": datetime.now(),
+                                },
+                            )
+
+                            # Limpiar y buscar por CUFE
+                            if await search_input.is_visible():
+                                await search_input.click(timeout=5000)
+                                await search_input.fill("")
+                                await page.wait_for_timeout(500)
+                                await search_input.fill(cufe)
+                                await page.wait_for_timeout(settings.DIAN_WAIT_AFTER_CLICK)
+                            else:
+                                # Si no hay search input, recargar pagina y re-navegar
+                                logger.warning(f"Lote {lote_id}: No se encontro campo de busqueda, recargando...")
+                                await page.reload(wait_until="networkidle")
+                                await page.wait_for_timeout(5000)
+                                search_input = page.locator(".dataTables_filter input[type='search'], input[type='search']").first
+
+                            # Verificar si aparecen botones de descarga
+                            botones = page.locator("button.download-document")
+                            cantidad = await botones.count()
+
+                            if cantidad == 0:
+                                # CUFE no encontrado
+                                await LoteService.update_detalle(
+                                    db, detalle.id,
+                                    {"status": "not_found", "mensaje": "CUFE no encontrado en el portal DIAN"},
+                                )
+                                await LoteService.recalculate_lote_counts(db, lote_id)
+                                logger.info(f"Lote {lote_id}: CUFE {cufe[:30]}... no encontrado")
+                                continue
+
+                            # Buscar el boton con el data-id que coincida
+                            encontrado = False
+                            for i in range(cantidad):
+                                boton = botones.nth(i)
+                                doc_id = await boton.get_attribute("data-id")
+                                if doc_id and (doc_id == cufe or cufe in doc_id or doc_id in cufe):
+                                    encontrado = True
+                                    id_corto = doc_id[:12] if doc_id else f"cufe_{idx}"
+
+                                    async with page.expect_download(timeout=settings.DOWNLOAD_TIMEOUT) as dl_info:
+                                        await boton.click(timeout=15000)
+
+                                    download = await dl_info.value
+                                    filename = f"CUFE_{id_corto}_{datetime.now().strftime('%H%M%S')}.zip"
+                                    save_path = os.path.join(download_folder, filename)
+                                    await download.save_as(save_path)
+
+                                    await LoteService.update_detalle(
+                                        db, detalle.id,
+                                        {
+                                            "status": "downloaded",
+                                            "download_path": save_path,
+                                            "mensaje": f"Descargado: {filename}",
+                                        },
+                                    )
+                                    await LoteService.recalculate_lote_counts(db, lote_id)
+                                    logger.info(f"Lote {lote_id}: CUFE {cufe[:30]}... descargado exitosamente")
+                                    await page.wait_for_timeout(settings.DIAN_WAIT_BETWEEN_DOWNLOADS)
+                                    break
+
+                            if not encontrado:
+                                # El CUFE no estaba entre los resultados visibles
+                                await LoteService.update_detalle(
+                                    db, detalle.id,
+                                    {"status": "not_found", "mensaje": "CUFE no encontrado en los resultados visibles"},
+                                )
+                                await LoteService.recalculate_lote_counts(db, lote_id)
+                                logger.info(f"Lote {lote_id}: CUFE {cufe[:30]}... no encontrado en resultados")
+
+                            # Actualizar progreso general
+                            progreso = 10 + ((idx + 1) / total_pendientes) * 85
+                            await LoteService.update_lote(
+                                db, lote_id, {"progress": min(progreso, 95)}
+                            )
+
+                        except Exception as e:
+                            error_msg = str(e)[:200]
+                            logger.error(f"Lote {lote_id}: Error en CUFE {cufe[:30]}...: {error_msg}")
+
+                            await LoteService.update_detalle(
+                                db, detalle.id,
+                                {"status": "failed", "mensaje": error_msg},
+                            )
+                            await LoteService.recalculate_lote_counts(db, lote_id)
+
+                            # Continuar con el siguiente CUFE
+                            await page.wait_for_timeout(2000)
+
+                    await browser.close()
+
+                    # Actualizar estado final del lote
+                    await LoteService.recalculate_lote_counts(db, lote_id)
+
+                    lote_final_result = await db.execute(select(Lote).where(Lote.id == lote_id))
+                    lote_final_obj = lote_final_result.scalar_one_or_none()
+
+                    if lote_final_obj and lote_final_obj.status == "running":
+                        await LoteService.update_lote(
+                            db, lote_id,
+                            {
+                                "status": "completed",
+                                "progress": 100,
+                                "mensaje": f"Proceso completado. {lote_final_obj.descargados}/{lote_final_obj.total_cufes} descargados.",
+                            },
+                        )
+
+                    logger.info(
+                        f"Lote {lote_id}: Completado. "
+                        f"Descargados={lote_final_obj.descargados if lote_final_obj else '?'}, "
+                        f"Fallidos={lote_final_obj.fallidos if lote_final_obj else '?'}, "
+                        f"No encontrados={lote_final_obj.no_encontrados if lote_final_obj else '?'}"
+                    )
+
+            except Exception as e:
+                error_msg = f"Error: {str(e)}"
+                logger.error(f"Lote {lote_id}: {error_msg}", exc_info=True)
+                await LoteService.update_lote(
+                    db, lote_id, {"status": "failed", "mensaje": error_msg}
+                )

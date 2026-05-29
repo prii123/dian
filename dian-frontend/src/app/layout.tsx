@@ -52,6 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const navItems = [
     { href: "/", label: "Dashboard" },
     { href: "/tasks", label: "Tareas" },
+    { href: "/lotes", label: "Lotes" },
     { href: "/admin", label: "API Keys" },
   ];
 

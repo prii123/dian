@@ -11,11 +11,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.logger import logger
 from app.core.database import init_database, close_database
-from app.routes import files, health, tasks, admin
+from app.routes import files, health, tasks, admin, lotes
 
-# Fix para Windows: Playwright requiere WindowsSelectorEventLoopPolicy
+# Fix para Windows: Playwright requiere ProactorEventLoop (soporta subprocess_exec)
 if sys.platform == "win32":
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
 
 def create_app() -> FastAPI:
@@ -31,16 +31,18 @@ def create_app() -> FastAPI:
     ### Características principales:
     
     * **Descarga automatizada**: Descarga documentos por rango de fechas
+    * **Lotes por CUFE**: Sube un Excel con CUFE y descarga cada documento individualmente
     * **Gestión de tareas**: Sistema de tareas asíncronas con seguimiento en tiempo real
     * **Gestión de archivos**: Lista, descarga individual o descarga masiva en ZIP
     * **Navegador automatizado**: Utiliza Playwright para la automatización
     
     ### Flujo de uso:
     
-    1. **Iniciar descarga**: POST `/api/iniciar-descarga` con token_url y fechas
-    2. **Consultar estado**: GET `/api/estado-tarea/{task_id}` para ver el progreso
-    3. **Listar archivos**: GET `/api/listar-archivos/{task_id}` cuando se complete
-    4. **Descargar**: GET `/api/descargar-archivo/{task_id}/{nombre}` o `/api/descargar-todos/{task_id}`
+    1. **Iniciar descarga por fechas**: POST `/api/iniciar-descarga` con token_url y fechas
+    2. **Subir Excel de CUFE**: POST `/api/lotes/upload` con archivo Excel y token_url
+    3. **Consultar estado**: GET `/api/estado-tarea/{task_id}` o GET `/api/lotes/{lote_id}`
+    4. **Reanudar lote fallido**: POST `/api/lotes/{lote_id}/reanudar`
+    5. **Descargar todo comprimido**: GET `/api/lotes/{lote_id}/descargar-comprimido`
     """
 
     # Metadatos de tags para organizar los endpoints
@@ -56,6 +58,10 @@ def create_app() -> FastAPI:
         {
             "name": "Descargas y Archivos",
             "description": "Gestión de archivos descargados: listar, descargar individual, descargar múltiples en ZIP. **Requiere API Key**.",
+        },
+        {
+            "name": "Lotes CUFE",
+            "description": "Procesamiento masivo por CUFE: subir Excel, procesar, reanudar, descargar todo comprimido. **Requiere API Key**.",
         },
         {
             "name": "Admin - API Keys",
@@ -94,6 +100,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(tasks.router)
     app.include_router(files.router)
+    app.include_router(lotes.router)
 
     # Event handlers
     @app.on_event("startup")
