@@ -27,6 +27,7 @@ class Settings(BaseSettings):
 
     # Configuración de Playwright
     BROWSER_HEADLESS: bool = True
+    BROWSER_SLOW_MO: int = 0  # ms - 0=sin slowmo, usar 500-1000 para debug visual
     BROWSER_TIMEOUT: int = 90000  # ms
     DOWNLOAD_TIMEOUT: int = 45000  # ms
 
